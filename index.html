@@ -4,10 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Windows USB Booteable - Chrome OS Flex</title>
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <link href="https://cdn.jsdelivr.net/npm/tabler-icons@latest/tabler-icons.css" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -38,10 +34,19 @@
         h1 {
             color: #333;
             margin-bottom: 0.5rem;
-            display: flex;
-            align-items: center;
-            gap: 12px;
             font-size: 28px;
+        }
+
+        h2 {
+            color: #333;
+            margin-bottom: 1.5rem;
+            font-size: 22px;
+        }
+
+        h3 {
+            color: #333;
+            margin-bottom: 1rem;
+            font-size: 16px;
         }
 
         .subtitle {
@@ -74,6 +79,7 @@
             display: flex;
             gap: 8px;
             margin-bottom: 2rem;
+            flex-wrap: wrap;
         }
 
         .progress-dot {
@@ -87,6 +93,8 @@
             font-size: 14px;
             cursor: pointer;
             transition: all 0.3s ease;
+            background: #e5e7eb;
+            color: #999;
         }
 
         .progress-dot.completed {
@@ -98,11 +106,6 @@
             background: #667eea;
             color: white;
             box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.2);
-        }
-
-        .progress-dot.pending {
-            background: #e5e7eb;
-            color: #999;
         }
 
         .form-group {
@@ -117,16 +120,17 @@
             font-size: 14px;
         }
 
-        select, input {
+        select, input, textarea {
             width: 100%;
             padding: 12px;
             border: 2px solid #e5e7eb;
             border-radius: 8px;
             font-size: 14px;
+            font-family: inherit;
             transition: border-color 0.3s;
         }
 
-        select:focus, input:focus {
+        select:focus, input:focus, textarea:focus {
             outline: none;
             border-color: #667eea;
         }
@@ -136,6 +140,7 @@
             gap: 12px;
             margin-top: 2rem;
             justify-content: space-between;
+            flex-wrap: wrap;
         }
 
         button {
@@ -177,14 +182,16 @@
             padding: 16px;
             border-radius: 8px;
             font-family: 'Courier New', monospace;
-            font-size: 12px;
+            font-size: 11px;
             overflow-x: auto;
             margin: 1rem 0;
             line-height: 1.6;
             position: relative;
+            max-height: 300px;
+            overflow-y: auto;
         }
 
-        .code-block .copy-btn {
+        .copy-btn {
             position: absolute;
             top: 8px;
             right: 8px;
@@ -195,9 +202,10 @@
             border-radius: 4px;
             font-size: 12px;
             cursor: pointer;
+            z-index: 10;
         }
 
-        .code-block .copy-btn:hover {
+        .copy-btn:hover {
             background: #5568d3;
         }
 
@@ -209,6 +217,7 @@
             margin: 1rem 0;
             font-size: 13px;
             color: #1e40af;
+            line-height: 1.6;
         }
 
         .warning-box {
@@ -219,6 +228,7 @@
             margin: 1rem 0;
             font-size: 13px;
             color: #92400e;
+            line-height: 1.6;
         }
 
         .success-box {
@@ -229,6 +239,7 @@
             margin: 1rem 0;
             font-size: 13px;
             color: #065f46;
+            line-height: 1.6;
         }
 
         .checklist {
@@ -256,21 +267,7 @@
             border-radius: 50%;
             font-weight: bold;
             font-size: 12px;
-        }
-
-        .loader {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #667eea;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            flex-shrink: 0;
         }
 
         .file-list {
@@ -306,72 +303,273 @@
             font-weight: bold;
         }
 
-        .breadcrumb {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 2rem;
+        ol, ul {
+            margin-left: 1.5rem;
+            line-height: 1.8;
+        }
+
+        ol li, ul li {
+            margin-bottom: 8px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        code {
+            background: #e5e7eb;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
             font-size: 12px;
-            color: #999;
         }
 
-        .breadcrumb span {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .breadcrumb .active {
-            color: #667eea;
+        strong {
+            color: #333;
             font-weight: 600;
+        }
+
+        p {
+            line-height: 1.6;
+            color: #666;
+            margin-bottom: 1rem;
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 2rem;
+            font-size: 12px;
         }
     </style>
 </head>
 <body>
-    <div id="root"></div>
+    <div class="container">
+        <div class="card">
+            <h1>💿 Windows USB Booteable</h1>
+            <p class="subtitle">Para Chrome OS Flex - Sin terminal complicada</p>
 
-    <script type="text/babel">
-        const { useState } = React;
+            <div class="progress-bar" id="progressBar"></div>
 
-        function App() {
-            const [currentStep, setCurrentStep] = useState(0);
-            const [formData, setFormData] = useState({
-                windowsVersion: '11',
-                usbDevice: 'auto'
-            });
-            const [downloaded, setDownloaded] = useState({
-                iso: false,
-                driver: false,
-                script: false
-            });
+            <!-- PASO 0: Bienvenida -->
+            <div class="step active" id="step0">
+                <h2>Bienvenido 👋</h2>
+                <p>Esta herramienta te ayudará a crear un USB booteable con Windows de forma sencilla, sin necesidad de usar terminal complicada. Solo necesitas:</p>
+                <ul class="checklist">
+                    <li>Un USB de 8GB o más</li>
+                    <li>Tu Chrome OS Flex</li>
+                    <li>Conexión a internet</li>
+                    <li>20-30 minutos</li>
+                </ul>
+                <div class="warning-box">
+                    <strong>⚠ Importante:</strong> El USB se formateará completamente. Asegúrate de que no tenga datos importantes.
+                </div>
+                <div class="button-group">
+                    <div></div>
+                    <button class="btn-primary" onclick="nextStep()">Siguiente →</button>
+                </div>
+            </div>
 
-            const steps = [
-                {
-                    title: "Bienvenido",
-                    description: "Vamos a crear un USB booteable con Windows"
-                },
-                {
-                    title: "Selecciona opciones",
-                    description: "Elige tu versión de Windows y detecta el USB"
-                },
-                {
-                    title: "Descarga archivos",
-                    description: "ISO de Windows y driver NVMe"
-                },
-                {
-                    title: "Copia el script",
-                    description: "Ejecuta un comando en terminal"
-                },
-                {
-                    title: "Reinicia e instala",
-                    description: "Sigue los pasos en BIOS"
-                }
-            ];
+            <!-- PASO 1: Configuración -->
+            <div class="step" id="step1">
+                <h2>Selecciona tus opciones</h2>
+                
+                <div class="form-group">
+                    <label>¿Qué versión de Windows quieres?</label>
+                    <select id="windowsVersion" onchange="updateScript()">
+                        <option value="11">Windows 11 (recomendado)</option>
+                        <option value="10">Windows 10</option>
+                    </select>
+                </div>
 
-            const generateScript = () => {
-                const devicePath = formData.usbDevice === 'auto' ? '/dev/sdX' : `/dev/sd${formData.usbDevice}`;
-                return `#!/bin/bash
-# Windows ${formData.windowsVersion} USB Booteable
-# Chrome OS Flex
+                <div class="form-group">
+                    <label>¿Cómo conectaste el USB?</label>
+                    <select id="usbDevice" onchange="updateScript()">
+                        <option value="auto">Detectar automáticamente (recomendado)</option>
+                        <option value="sdb">Manual: /dev/sdb</option>
+                        <option value="sdc">Manual: /dev/sdc</option>
+                        <option value="sdd">Manual: /dev/sdd</option>
+                    </select>
+                </div>
+
+                <div class="info-box">
+                    <strong>ℹ Si no sabes cuál es tu USB:</strong> En el siguiente paso te mostraremos un comando para detectarlo automáticamente.
+                </div>
+
+                <div class="button-group">
+                    <button class="btn-secondary" onclick="prevStep()">← Atrás</button>
+                    <button class="btn-primary" onclick="nextStep()">Siguiente →</button>
+                </div>
+            </div>
+
+            <!-- PASO 2: Descargas -->
+            <div class="step" id="step2">
+                <h2>Archivos necesarios</h2>
+                
+                <p>Necesitamos 2 cosas. Descargarlas es automático en el siguiente paso:</p>
+
+                <div class="file-list">
+                    <div class="file-item">
+                        <div class="file-icon">📦</div>
+                        <div>
+                            <strong>Windows <span id="versionDisplay">11</span> ISO</strong>
+                            <div style="color: #999; font-size: 12px;">~5GB - Imagen de Windows</div>
+                        </div>
+                    </div>
+                    <div class="file-item">
+                        <div class="file-icon">🔧</div>
+                        <div>
+                            <strong>Driver RST NVMe</strong>
+                            <div style="color: #999; font-size: 12px;">~100MB - Para que Windows vea tu disco</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <strong>ℹ Balena Etcher:</strong> Es una herramienta gratuita que copia la ISO al USB de forma segura. Se descargará automáticamente.
+                </div>
+
+                <div class="success-box">
+                    <strong>✓ El proceso total toma ~20 minutos</strong><br/>
+                    (Depende de tu velocidad de internet y USB)
+                </div>
+
+                <div class="button-group">
+                    <button class="btn-secondary" onclick="prevStep()">← Atrás</button>
+                    <button class="btn-primary" onclick="nextStep()">Siguiente →</button>
+                </div>
+            </div>
+
+            <!-- PASO 3: Script -->
+            <div class="step" id="step3">
+                <h2>Copia este comando</h2>
+                <p>Este es el único comando que necesitas ejecutar en terminal. Haz click para copiar:</p>
+
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyScript()">📋 Copiar</button>
+                    <pre id="scriptContent" style="margin-top: 24px;"></pre>
+                </div>
+
+                <div class="info-box" style="margin-top: 1.5rem;">
+                    <strong>ℹ Cómo usar en Chrome OS Flex:</strong>
+                    <ol>
+                        <li>Abre una terminal: <code>Ctrl + Alt + T</code></li>
+                        <li>Escribe: <code>shell</code></li>
+                        <li>Pega el comando (Ctrl + Shift + V)</li>
+                        <li>Presiona Enter</li>
+                    </ol>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn-secondary" onclick="prevStep()">← Atrás</button>
+                    <button class="btn-primary" onclick="nextStep()">Siguiente →</button>
+                </div>
+            </div>
+
+            <!-- PASO 4: Instalación -->
+            <div class="step" id="step4">
+                <h2>Reinicia e instala Windows</h2>
+                
+                <div class="success-box" style="margin-bottom: 1.5rem;">
+                    <strong>✓ ¡Tu USB está listo!</strong><br/>
+                    Ahora vamos a instalar Windows en tu HP
+                </div>
+
+                <h3>Pasos en tu HP 15s:</h3>
+                
+                <ol>
+                    <li><strong>Desconecta el USB del Chrome OS Flex</strong></li>
+                    <li><strong>Conecta el USB a tu HP</strong></li>
+                    <li><strong>Reinicia tu HP:</strong> Apaga completamente y enciende</li>
+                    <li><strong>Durante el arranque, presiona F2</strong> (rápido, antes de que aparezca Windows)</li>
+                    <li><strong>Ve a "System Configuration"</strong> (o "Advanced")</li>
+                    <li><strong>Busca "Intel VMD"</strong> y <strong>desactívalo</strong></li>
+                    <li><strong>Ve a "Boot Options"</strong> y <strong>cambia a USB</strong></li>
+                    <li><strong>Guarda con F10</strong> y reinicia</li>
+                    <li><strong>Arrancará desde el USB</strong> - Sigue el instalador de Windows normalmente</li>
+                    <li><strong>Si pide driver NVMe:</strong> Busca en el USB la carpeta "drivers"</li>
+                </ol>
+
+                <div class="warning-box">
+                    <strong>⚠ Recuerda:</strong> Es IMPORTANTE desactivar Intel VMD en BIOS. Sin eso, Windows no verá tu disco duro.
+                </div>
+
+                <div class="info-box">
+                    <strong>ℹ Dudas?</strong> Si algo no funciona, revisa que hayas hecho:
+                    <ul>
+                        <li>✓ Copiado el script correctamente</li>
+                        <li>✓ Verificado que el USB es el correcto (lsblk)</li>
+                        <li>✓ Desactivado Intel VMD en BIOS</li>
+                    </ul>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn-secondary" onclick="prevStep()">← Atrás</button>
+                    <button class="btn-primary" onclick="location.reload()">✓ Listo, empezar de nuevo</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Creado para hacer la vida más fácil en Chrome OS Flex 💜</p>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 0;
+        const totalSteps = 5;
+
+        function initProgress() {
+            const progressBar = document.getElementById('progressBar');
+            progressBar.innerHTML = '';
+            for (let i = 0; i < totalSteps; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'progress-dot';
+                if (i < currentStep) dot.classList.add('completed');
+                if (i === currentStep) dot.classList.add('active');
+                dot.textContent = i < currentStep ? '✓' : i + 1;
+                dot.onclick = () => goToStep(i);
+                progressBar.appendChild(dot);
+            }
+        }
+
+        function showStep(step) {
+            for (let i = 0; i < totalSteps; i++) {
+                const el = document.getElementById(`step${i}`);
+                if (el) el.classList.remove('active');
+            }
+            const el = document.getElementById(`step${step}`);
+            if (el) el.classList.add('active');
+            initProgress();
+            window.scrollTo(0, 0);
+        }
+
+        function nextStep() {
+            if (currentStep < totalSteps - 1) {
+                currentStep++;
+                showStep(currentStep);
+            }
+        }
+
+        function prevStep() {
+            if (currentStep > 0) {
+                currentStep--;
+                showStep(currentStep);
+            }
+        }
+
+        function goToStep(step) {
+            if (step <= currentStep) {
+                currentStep = step;
+                showStep(currentStep);
+            }
+        }
+
+        function generateScript() {
+            const winVersion = document.getElementById('windowsVersion').value;
+            const usbDevice = document.getElementById('usbDevice').value;
+            const devicePath = usbDevice === 'auto' ? '/dev/sdX' : `/dev/sd${usbDevice}`;
+            
+            return `#!/bin/bash
+# Windows ${winVersion} USB Booteable - Chrome OS Flex
 
 set -e
 GREEN='\\033[0;32m'
@@ -389,7 +587,7 @@ WORKDIR="/home/chronos/windows_usb"
 mkdir -p $WORKDIR
 cd $WORKDIR
 
-echo -e "\\${GREEN}[1/3] Descargando ISO de Windows ${formData.windowsVersion}...\\${NC}"
+echo -e "\\${GREEN}[1/3] Descargando ISO de Windows ${winVersion}...\\${NC}"
 if [ ! -f "windows.iso" ]; then
     wget -q --show-progress -O windows.iso https://go.microsoft.com/fwlink/p/?linkid=2156292
 fi
@@ -421,268 +619,34 @@ echo "2. Reinicia tu HP"
 echo "3. Durante arranque, presiona F2"
 echo "4. Ve a System Configuration → desactiva Intel VMD"
 echo "5. Ve a Boot Options → cambia a USB"
-echo "6. Guarda (F10) y reinicia"
-`;
-            };
-
-            const copyToClipboard = (text) => {
-                navigator.clipboard.writeText(text).then(() => {
-                    alert('¡Script copiado al portapapeles!');
-                });
-            };
-
-            const handleNextStep = () => {
-                if (currentStep < steps.length - 1) {
-                    setCurrentStep(currentStep + 1);
-                }
-            };
-
-            const handlePrevStep = () => {
-                if (currentStep > 0) {
-                    setCurrentStep(currentStep - 1);
-                }
-            };
-
-            return (
-                <div className="container">
-                    <div className="card">
-                        <h1>
-                            <i className="ti ti-usb" style={{fontSize: '32px'}}></i>
-                            Windows USB Booteable
-                        </h1>
-                        <p className="subtitle">Para Chrome OS Flex sin terminal complicada</p>
-
-                        <div className="progress-bar">
-                            {steps.map((step, idx) => (
-                                <div
-                                    key={idx}
-                                    className={`progress-dot ${idx === currentStep ? 'active' : idx < currentStep ? 'completed' : 'pending'}`}
-                                    onClick={() => setCurrentStep(idx)}
-                                    title={step.title}
-                                >
-                                    {idx < currentStep ? '✓' : idx + 1}
-                                </div>
-                            ))}
-                        </div>
-
-                        {/* PASO 0: Bienvenida */}
-                        <div className={`step ${currentStep === 0 ? 'active' : ''}`}>
-                            <h2 style={{marginBottom: '1rem', color: '#333'}}>Bienvenido 👋</h2>
-                            <p style={{color: '#666', lineHeight: '1.6', marginBottom: '1.5rem'}}>
-                                Esta herramienta te ayudará a crear un USB booteable con Windows de forma sencilla, 
-                                sin necesidad de usar terminal complicada. Solo necesitas:
-                            </p>
-                            <ul className="checklist">
-                                <li>Un USB de 8GB o más</li>
-                                <li>Tu Chrome OS Flex</li>
-                                <li>Conexión a internet</li>
-                                <li>20-30 minutos</li>
-                            </ul>
-                            <div className="warning-box">
-                                <strong>⚠ Importante:</strong> El USB se formateará completamente. 
-                                Asegúrate de que no tenga datos importantes.
-                            </div>
-                            <div className="button-group">
-                                <div></div>
-                                <button className="btn-primary" onClick={handleNextStep}>
-                                    Siguiente
-                                    <i className="ti ti-arrow-right"></i>
-                                </button>
-                            </div>
-                        </div>
-
-                        {/* PASO 1: Configuración */}
-                        <div className={`step ${currentStep === 1 ? 'active' : ''}`}>
-                            <h2 style={{marginBottom: '1.5rem', color: '#333'}}>Selecciona tus opciones</h2>
-                            
-                            <div className="form-group">
-                                <label>¿Qué versión de Windows quieres?</label>
-                                <select 
-                                    value={formData.windowsVersion}
-                                    onChange={(e) => setFormData({...formData, windowsVersion: e.target.value})}
-                                >
-                                    <option value="11">Windows 11 (recomendado)</option>
-                                    <option value="10">Windows 10</option>
-                                </select>
-                            </div>
-
-                            <div className="form-group">
-                                <label>¿Cómo conectaste el USB?</label>
-                                <select 
-                                    value={formData.usbDevice}
-                                    onChange={(e) => setFormData({...formData, usbDevice: e.target.value})}
-                                >
-                                    <option value="auto">Detectar automáticamente (recomendado)</option>
-                                    <option value="sdb">Manual: /dev/sdb</option>
-                                    <option value="sdc">Manual: /dev/sdc</option>
-                                    <option value="sdd">Manual: /dev/sdd</option>
-                                </select>
-                            </div>
-
-                            <div className="info-box">
-                                <strong>ℹ Si no sabes cuál es tu USB:</strong> En el siguiente paso te mostraremos 
-                                un comando para detectarlo automáticamente.
-                            </div>
-
-                            <div className="button-group">
-                                <button className="btn-secondary" onClick={handlePrevStep}>
-                                    <i className="ti ti-arrow-left"></i>
-                                    Atrás
-                                </button>
-                                <button className="btn-primary" onClick={handleNextStep}>
-                                    Siguiente
-                                    <i className="ti ti-arrow-right"></i>
-                                </button>
-                            </div>
-                        </div>
-
-                        {/* PASO 2: Descargas */}
-                        <div className={`step ${currentStep === 2 ? 'active' : ''}`}>
-                            <h2 style={{marginBottom: '1.5rem', color: '#333'}}>Archivos necesarios</h2>
-                            
-                            <p style={{color: '#666', marginBottom: '1rem'}}>
-                                Necesitamos 2 cosas. Descargarlas es automático en el siguiente paso:
-                            </p>
-
-                            <div className="file-list">
-                                <div className="file-item">
-                                    <div className="file-icon">📦</div>
-                                    <div>
-                                        <strong>Windows {formData.windowsVersion} ISO</strong>
-                                        <div style={{color: '#999', fontSize: '12px'}}>~5GB - Imagen de Windows</div>
-                                    </div>
-                                </div>
-                                <div className="file-item">
-                                    <div className="file-icon">🔧</div>
-                                    <div>
-                                        <strong>Driver RST NVMe</strong>
-                                        <div style={{color: '#999', fontSize: '12px'}}>~100MB - Para que Windows vea tu disco</div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="info-box">
-                                <strong>ℹ Balena Etcher:</strong> Es una herramienta gratuita que copia la ISO 
-                                al USB de forma segura. Se descargará automáticamente.
-                            </div>
-
-                            <div className="success-box">
-                                <strong>✓ El proceso total toma ~20 minutos</strong><br/>
-                                (Depende de tu velocidad de internet y USB)
-                            </div>
-
-                            <div className="button-group">
-                                <button className="btn-secondary" onClick={handlePrevStep}>
-                                    <i className="ti ti-arrow-left"></i>
-                                    Atrás
-                                </button>
-                                <button className="btn-primary" onClick={handleNextStep}>
-                                    Siguiente
-                                    <i className="ti ti-arrow-right"></i>
-                                </button>
-                            </div>
-                        </div>
-
-                        {/* PASO 3: Script */}
-                        <div className={`step ${currentStep === 3 ? 'active' : ''}`}>
-                            <h2 style={{marginBottom: '1rem', color: '#333'}}>Copia este comando</h2>
-                            <p style={{color: '#666', marginBottom: '1rem'}}>
-                                Este es el único comando que necesitas ejecutar en terminal. 
-                                Haz click para copiar:
-                            </p>
-
-                            <div className="code-block">
-                                <button 
-                                    className="copy-btn"
-                                    onClick={() => copyToClipboard(generateScript())}
-                                >
-                                    📋 Copiar
-                                </button>
-                                <pre style={{margin: 0, maxHeight: '400px', overflow: 'auto'}}>
-{generateScript()}
-                                </pre>
-                            </div>
-
-                            <div className="info-box" style={{marginTop: '1.5rem'}}>
-                                <strong>ℹ Cómo usar en Chrome OS Flex:</strong>
-                                <ol style={{marginLeft: '1rem', marginTop: '8px'}}>
-                                    <li>Abre una terminal: <code style={{background: '#e5e7eb', padding: '2px 4px'}}>Ctrl + Alt + T</code></li>
-                                    <li>Escribe: <code style={{background: '#e5e7eb', padding: '2px 4px'}}>shell</code></li>
-                                    <li>Pega el comando (Ctrl + Shift + V)</li>
-                                    <li>Presiona Enter</li>
-                                </ol>
-                            </div>
-
-                            <div className="button-group">
-                                <button className="btn-secondary" onClick={handlePrevStep}>
-                                    <i className="ti ti-arrow-left"></i>
-                                    Atrás
-                                </button>
-                                <button className="btn-primary" onClick={handleNextStep}>
-                                    Siguiente
-                                    <i className="ti ti-arrow-right"></i>
-                                </button>
-                            </div>
-                        </div>
-
-                        {/* PASO 4: Instalación */}
-                        <div className={`step ${currentStep === 4 ? 'active' : ''}`}>
-                            <h2 style={{marginBottom: '1.5rem', color: '#333'}}>Reinicia e instala Windows</h2>
-                            
-                            <div className="success-box" style={{marginBottom: '1.5rem'}}>
-                                <strong>✓ Tu USB está listo!</strong><br/>
-                                Ahora vamos a instalar Windows en tu HP
-                            </div>
-
-                            <h3 style={{marginTop: '1.5rem', marginBottom: '1rem', color: '#333'}}>Pasos en tu HP 15s:</h3>
-                            
-                            <ol style={{marginLeft: '1.5rem', lineHeight: '2', color: '#666', marginBottom: '1.5rem'}}>
-                                <li><strong>Desconecta el USB del Chrome OS Flex</strong></li>
-                                <li><strong>Conecta el USB a tu HP</strong></li>
-                                <li><strong>Reinicia tu HP:</strong> Apaga completamente y enciende</li>
-                                <li><strong>Durante el arranque, presiona F2</strong> (rápido, antes de que aparezca Windows)</li>
-                                <li><strong>Ve a "System Configuration"</strong> (o "Advanced")</li>
-                                <li><strong>Busca "Intel VMD"</strong> y <strong>desactívalo</strong></li>
-                                <li><strong>Ve a "Boot Options"</strong> y <strong>cambia a USB</strong></li>
-                                <li><strong>Guarda con F10</strong> y reinicia</li>
-                                <li><strong>Arrancará desde el USB</strong> - Sigue el instalador de Windows normalmente</li>
-                                <li><strong>Si pide driver NVMe:</strong> Busca en el USB la carpeta "drivers"</li>
-                            </ol>
-
-                            <div className="warning-box">
-                                <strong>⚠ Recuerda:</strong> Es IMPORTANTE desactivar Intel VMD en BIOS. 
-                                Sin eso, Windows no verá tu disco duro.
-                            </div>
-
-                            <div className="info-box">
-                                <strong>ℹ Dudas?</strong> Si algo no funciona, revisa que hayas hecho:
-                                <ul style={{marginLeft: '1rem', marginTop: '8px'}}>
-                                    <li>✓ Copiado el script correctamente</li>
-                                    <li>✓ Verificado que el USB es el correcto (lsblk)</li>
-                                    <li>✓ Desactivado Intel VMD en BIOS</li>
-                                </ul>
-                            </div>
-
-                            <div className="button-group">
-                                <button className="btn-secondary" onClick={handlePrevStep}>
-                                    <i className="ti ti-arrow-left"></i>
-                                    Atrás
-                                </button>
-                                <button className="btn-primary" onClick={() => window.location.href = '#'}>
-                                    ✓ Listo, empezar de nuevo
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div style={{textAlign: 'center', color: 'white', marginTop: '2rem', fontSize: '12px'}}>
-                        <p>Creado para hacer la vida más fácil en Chrome OS Flex</p>
-                    </div>
-                </div>
-            );
+echo "6. Guarda (F10) y reinicia"`;
         }
 
-        ReactDOM.render(<App />, document.getElementById('root'));
+        function updateScript() {
+            const scriptContent = document.getElementById('scriptContent');
+            scriptContent.textContent = generateScript();
+            document.getElementById('versionDisplay').textContent = document.getElementById('windowsVersion').value;
+        }
+
+        function copyScript() {
+            const scriptContent = document.getElementById('scriptContent').textContent;
+            navigator.clipboard.writeText(scriptContent).then(() => {
+                const btn = event.target;
+                const originalText = btn.textContent;
+                btn.textContent = '✓ ¡Copiado!';
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                }, 2000);
+            }).catch(() => {
+                alert('No se pudo copiar. Copia manualmente el texto.');
+            });
+        }
+
+        // Inicializar
+        document.addEventListener('DOMContentLoaded', () => {
+            updateScript();
+            showStep(0);
+        });
     </script>
 </body>
 </html>
